@@ -12,6 +12,8 @@ curl -fsSL https://raw.githubusercontent.com/Ggumnamu1325/windows-steam/main/ins
 
 기존 Windows Steam이 있으면 업데이트하고, 없으면 공식 실행 환경과 Steam 설치 파일을 자동으로 내려받아 준비합니다. 개발 도구·Rosetta 설치 승인이 나오면 안내에 따르고, Steam 설치 창의 약관 확인과 계정 로그인은 직접 진행하세요. 개발 도구 설치 후에는 같은 명령을 다시 실행하면 됩니다.
 
+Dock에는 Windows Steam 제어 앱 하나, 상단 메뉴 막대에는 게임패드 아이콘 하나로 표시합니다.
+
 ## 켜기
 
 응용 프로그램의 **Windows Steam**을 열고 Steam에 로그인하세요. 라이브러리에서 게임을 설치하고 실행하면 됩니다.

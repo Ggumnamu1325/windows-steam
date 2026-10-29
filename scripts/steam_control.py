@@ -12,6 +12,11 @@ class Controller:
         self.steam = self.prefix / 'drive_c/Program Files (x86)/Steam/Steam.exe'
         self.env = dict(os.environ, WINEPREFIX=str(self.prefix),
             DYLD_FALLBACK_LIBRARY_PATH=str(self.contents/'Frameworks')+':'+str(self.contents/'SharedSupport/wine/lib'))
+        presentation = self.contents / 'Resources/WindowsSteamPresentation.dylib'
+        if presentation.is_file():
+            self.env['DYLD_INSERT_LIBRARIES'] = str(presentation)
+            self.env['WINDOWS_STEAM_PRESENTATION'] = '1'
+
     def validate(self):
         for p in [self.bin/'wine', self.bin/'wineserver', self.steam, self.contents/'MacOS/Sikarugir']:
             if not p.is_file(): raise RuntimeError('필요한 실행 파일이 없습니다: '+p.name)

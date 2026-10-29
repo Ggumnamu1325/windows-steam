@@ -6,17 +6,20 @@ p=argparse.ArgumentParser();p.add_argument('--wrapper',default='/Applications/Wi
 root=Path(__file__).resolve().parent.parent;build=root/'.build';build.mkdir(exist_ok=True)
 for source,target in [('MenuApp.swift','WindowsSteamMenu'),('Launcher.swift','WindowsSteamLauncher')]:
  subprocess.run(['xcrun','swiftc','-swift-version','5','-O','-framework','AppKit',str(root/'Sources'/source),'-o',str(build/target)],check=True)
+subprocess.run(['xcrun','clang','-arch','arm64','-arch','x86_64','-mmacosx-version-min=14.6','-fobjc-arc','-dynamiclib','-framework','AppKit',str(root/'Sources/WinePresentation.m'),'-o',str(build/'WindowsSteamPresentation.dylib')],check=True)
 if a.build_only:raise SystemExit()
 c=Path(a.wrapper).expanduser().resolve()/'Contents'
 if not (c/'MacOS/Sikarugir').is_file():raise SystemExit('Select an existing Sikarugir wrapper.')
 helper=c/'Resources/Windows Steam Menu.app/Contents';(helper/'MacOS').mkdir(parents=True,exist_ok=True);(helper/'Resources').mkdir(exist_ok=True)
 shutil.copy2(build/'WindowsSteamMenu',helper/'MacOS/WindowsSteamMenu')
 shutil.copy2(root/'scripts/steam_control.py',helper/'Resources/steam_control.py')
-(helper/'Info.plist').write_bytes(plistlib.dumps({'CFBundleIdentifier':'local.windowssteam.menu','CFBundleName':'Windows Steam Menu','CFBundleExecutable':'WindowsSteamMenu','CFBundlePackageType':'APPL','CFBundleVersion':'1','LSUIElement':True,'LSMinimumSystemVersion':'14.6'}))
+(helper/'Info.plist').write_bytes(plistlib.dumps({'CFBundleIdentifier':'local.windowssteam.menu','CFBundleName':'Windows Steam','CFBundleExecutable':'WindowsSteamMenu','CFBundlePackageType':'APPL','CFBundleVersion':'1','LSUIElement':False,'LSMinimumSystemVersion':'14.6'}))
 subprocess.run(['codesign','--force','--sign','-',str(helper.parent)],check=True)
+shutil.copy2(build/'WindowsSteamPresentation.dylib',c/'Resources/WindowsSteamPresentation.dylib')
+subprocess.run(['codesign','--force','--sign','-',str(c/'Resources/WindowsSteamPresentation.dylib')],check=True)
 shutil.copy2(build/'WindowsSteamLauncher',c/'MacOS/WindowsSteamLauncher')
 subprocess.run(['codesign','--force','--sign','-',str(c/'MacOS/WindowsSteamLauncher')],check=True)
-p=c/'Info.plist';data=plistlib.loads(p.read_bytes());data['CFBundleExecutable']='WindowsSteamLauncher';data['Program Flags']='-language koreana steam://open/games';p.write_bytes(plistlib.dumps(data))
+p=c/'Info.plist';data=plistlib.loads(p.read_bytes());data['CFBundleExecutable']='WindowsSteamLauncher';data['LSUIElement']=True;data['Program Flags']='-language koreana steam://open/games';p.write_bytes(plistlib.dumps(data))
 
 
 # Route the wrapper's own Quit command through the same native controller.

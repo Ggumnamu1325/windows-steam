@@ -12,7 +12,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         Bundle.main.bundleURL.deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
     }
     func applicationDidFinishLaunching(_ notification: Notification) {
-        NSApp.setActivationPolicy(.accessory)
+        NSApp.setActivationPolicy(.regular)
+        if let icon = NSImage(contentsOf: wrapper.appendingPathComponent("Contents/Resources/Steam.icns")) {
+            NSApp.applicationIconImage = icon
+        }
+        let mainMenu = NSMenu(); let root = NSMenuItem(); let appMenu = NSMenu()
+        let openItem = NSMenuItem(title: "Steam 창 열기", action: #selector(showSteam), keyEquivalent: "")
+        openItem.target = self; appMenu.addItem(openItem); appMenu.addItem(.separator())
+        let exitItem = NSMenuItem(title: "Windows Steam 종료", action: #selector(quitSteam), keyEquivalent: "q")
+        exitItem.target = self; appMenu.addItem(exitItem)
+        root.submenu = appMenu; mainMenu.addItem(root); NSApp.mainMenu = mainMenu
         let menu = NSMenu(); menu.delegate = self
         status.isEnabled = false; menu.addItem(status); menu.addItem(.separator())
         let show = NSMenuItem(title: "Steam 창 열기", action: #selector(showSteam), keyEquivalent: "")
