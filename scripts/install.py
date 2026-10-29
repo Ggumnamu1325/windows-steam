@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Build and integrate into an existing user-owned wrapper; never bundle its data."""
-import argparse,plistlib,shutil,subprocess,os
+import argparse,plistlib,shutil,subprocess,os,time,signal
+from presentation_config import configure
 from pathlib import Path
 p=argparse.ArgumentParser();p.add_argument('--wrapper',default='/Applications/Windows Steam.app');p.add_argument('--build-only',action='store_true');a=p.parse_args()
 root=Path(__file__).resolve().parent.parent;build=root/'.build';build.mkdir(exist_ok=True)
@@ -10,6 +11,21 @@ subprocess.run(['xcrun','clang','-arch','arm64','-arch','x86_64','-mmacosx-versi
 if a.build_only:raise SystemExit()
 c=Path(a.wrapper).expanduser().resolve()/'Contents'
 if not (c/'MacOS/Sikarugir').is_file():raise SystemExit('Select an existing Sikarugir wrapper.')
+# An already-running helper would keep the old UI even after replacing its file.
+helper_executable=c/'Resources/Windows Steam Menu.app/Contents/MacOS/WindowsSteamMenu'
+def helper_pids():
+ result=subprocess.check_output(['/bin/ps','-axo','pid=,comm='],text=True)
+ return [int(line.strip().split(None,1)[0]) for line in result.splitlines()
+         if len(line.strip().split(None,1))==2 and line.strip().split(None,1)[1]==str(helper_executable)]
+if helper_executable.exists() and helper_pids():
+ # This affects only the exact helper inside the selected wrapper.
+ for pid in helper_pids():
+  try:os.kill(pid,signal.SIGTERM)
+  except ProcessLookupError:pass
+ for _ in range(30):
+  if not helper_pids():break
+  time.sleep(.1)
+ else:raise SystemExit('Close the selected Windows Steam menu helper before updating.')
 helper=c/'Resources/Windows Steam Menu.app/Contents';(helper/'MacOS').mkdir(parents=True,exist_ok=True);(helper/'Resources').mkdir(exist_ok=True)
 shutil.copy2(build/'WindowsSteamMenu',helper/'MacOS/WindowsSteamMenu')
 shutil.copy2(root/'scripts/steam_control.py',helper/'Resources/steam_control.py')
@@ -19,7 +35,9 @@ shutil.copy2(build/'WindowsSteamPresentation.dylib',c/'Resources/WindowsSteamPre
 subprocess.run(['codesign','--force','--sign','-',str(c/'Resources/WindowsSteamPresentation.dylib')],check=True)
 shutil.copy2(build/'WindowsSteamLauncher',c/'MacOS/WindowsSteamLauncher')
 subprocess.run(['codesign','--force','--sign','-',str(c/'MacOS/WindowsSteamLauncher')],check=True)
-p=c/'Info.plist';data=plistlib.loads(p.read_bytes());data['CFBundleExecutable']='WindowsSteamLauncher';data['LSUIElement']=True;data['Program Flags']='-language koreana steam://open/games';p.write_bytes(plistlib.dumps(data))
+p=c/'Info.plist'
+data=configure(plistlib.loads(p.read_bytes()), c/'Resources/WindowsSteamPresentation.dylib')
+p.write_bytes(plistlib.dumps(data))
 
 
 # Route the wrapper's own Quit command through the same native controller.
