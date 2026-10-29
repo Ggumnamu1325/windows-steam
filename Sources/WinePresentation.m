@@ -4,7 +4,7 @@
 #import <crt_externs.h>
 
 static BOOL isSteamClient(void) {
-    NSSet *names = [NSSet setWithArray:@[@"sikarugir", @"steam.exe", @"steamwebhelper.exe"]];
+    NSSet *names = [NSSet setWithArray:@[@"sikarugir", @"steam.exe", @"steamwebhelper.exe", @"explorer.exe"]];
     // Wine updates argv after dylib constructors; Foundation may cache the old arguments.
     char **arguments = *_NSGetArgv();
     for (int i = 0; i < *_NSGetArgc(); i++) {

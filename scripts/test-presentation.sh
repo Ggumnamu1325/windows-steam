@@ -11,3 +11,4 @@ export DYLD_INSERT_LIBRARIES="$PWD/.build/WindowsSteamPresentation.dylib"
 .build/presentation-check 'C:\Games\DifferentGame.exe' visible
 
 .build/presentation-check 'wine64-preloader' late
+.build/presentation-check 'C:\windows\system32\explorer.exe' hidden
