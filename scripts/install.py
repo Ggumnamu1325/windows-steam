@@ -17,7 +17,7 @@ subprocess.run(['codesign','--force','--sign','-',str(helper.parent)],check=True
 shutil.copy2(build/'WindowsSteamLauncher',c/'MacOS/WindowsSteamLauncher')
 subprocess.run(['codesign','--force','--sign','-',str(c/'MacOS/WindowsSteamLauncher')],check=True)
 p=c/'Info.plist';data=plistlib.loads(p.read_bytes());data['CFBundleExecutable']='WindowsSteamLauncher';data['Program Flags']='-language koreana steam://open/games';p.write_bytes(plistlib.dumps(data))
-print('Installed native menu controller. Runtime, games and account data were not copied or deleted.')
+
 
 # Route the wrapper's own Quit command through the same native controller.
 quit_script=c/'Resources/Scripts/QuitScript'
@@ -32,3 +32,5 @@ subprocess.run([str(c/'SharedSupport/wine/bin/wineserver'),'-w'],env=env,check=T
 register='/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister'
 subprocess.run([register,'-f',str(helper.parent)],check=True)
 subprocess.run([register,'-f',str(c.parent)],check=True)
+
+print('Installed native menu controller. Runtime, games and account data were not copied or deleted.')
