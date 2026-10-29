@@ -3,7 +3,8 @@ int main(int argc, char **argv) {
  @autoreleasepool {
   if (argc != 3) return 3;
   [NSApplication sharedApplication];
-  BOOL expected = strcmp(argv[2], "hidden") == 0;
+  BOOL expected = strcmp(argv[2], "hidden") == 0 || strcmp(argv[2], "late") == 0;
+  if (strcmp(argv[2], "late") == 0) argv[1] = "Steam.exe";
   NSStatusItem *item = [NSStatusBar.systemStatusBar statusItemWithLength:NSVariableStatusItemLength];
   if ((item == nil) != expected) return 1;
   if (expected) {

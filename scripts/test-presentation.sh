@@ -9,3 +9,5 @@ export DYLD_INSERT_LIBRARIES="$PWD/.build/WindowsSteamPresentation.dylib"
 .build/presentation-check 'C:\Program Files (x86)\Steam\bin\steamwebhelper.exe' hidden
 .build/presentation-check '/Applications/Example.app/Contents/MacOS/Sikarugir' hidden
 .build/presentation-check 'C:\Games\DifferentGame.exe' visible
+
+.build/presentation-check 'wine64-preloader' late
